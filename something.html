@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>something</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0a;
+      font-family: 'Space Mono', monospace;
+      overflow: hidden;
+    }
+
+    .link {
+      color: #555;
+      font-size: 0.95rem;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+      letter-spacing: 0.05em;
+    }
+    .link:hover { color: #888; }
+
+    /* message */
+    .message {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(2rem, 8vw, 4rem);
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+      z-index: 10;
+      letter-spacing: -0.02em;
+    }
+    .message.show { opacity: 1; }
+
+    /* floating hearts */
+    .heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 5;
+      font-size: 1.4rem;
+      animation: floatHeart linear forwards;
+      opacity: 0;
+    }
+    @keyframes floatHeart {
+      0%   { opacity: 0;   transform: translateY(0) scale(0.8); }
+      15%  { opacity: 1; }
+      85%  { opacity: 0.6; }
+      100% { opacity: 0;   transform: translateY(-100vh) scale(1.2); }
+    }
+
+    /* burst on click */
+    .burst {
+      position: fixed;
+      pointer-events: none;
+      z-index: 20;
+      font-size: 1.3rem;
+      animation: burst 0.7s ease-out forwards;
+    }
+    @keyframes burst {
+      0%   { opacity: 1; transform: translate(0,0) scale(1.2); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.4); }
+    }
+  </style>
+</head>
+<body>
+
+  <span class="link" id="btn">something</span>
+  <div class="message" id="msg">i lope you 😘</div>
+
+  <script>
+    const btn = document.getElementById('btn');
+    const msg = document.getElementById('msg');
+    let heartsInterval = null;
+
+    function spawnHeart() {
+      const el = document.createElement('div');
+      el.className = 'heart';
+      el.textContent = ['💕','💗','🤍','🖤','💖','✨'][Math.floor(Math.random()*6)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.bottom = '-40px';
+      const dur = 3 + Math.random() * 3;
+      el.style.animationDuration = dur + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000);
+    }
+
+    btn.addEventListener('click', function(e) {
+      // burst effect
+      const cx = e.clientX, cy = e.clientY;
+      for (let i = 0; i < 12; i++) {
+        const el = document.createElement('div');
+        el.className = 'burst';
+        el.textContent = ['💕','💗','🤍','💖','✨','🖤'][Math.floor(Math.random()*6)];
+        const angle = (i / 12) * Math.PI * 2;
+        const dist  = 50 + Math.random() * 70;
+        el.style.left = cx + 'px';
+        el.style.top  = cy + 'px';
+        el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        el.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 750);
+      }
+
+      // show message
+      msg.classList.add('show');
+
+      // start floating hearts
+      if (!heartsInterval) {
+        heartsInterval = setInterval(spawnHeart, 350);
+        // spawn a few immediately
+        for (let i = 0; i < 5; i++) setTimeout(spawnHeart, i * 120);
+      }
+    });
+  </script>
+</body>
+</html>
